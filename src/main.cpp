@@ -56,8 +56,20 @@ int main(int argc, char **argv){
   std::cout << "Renderer: " << renderer << std::endl;
   std::cout << "OpenGL version: " << version << std::endl;
 
+  // For perf counting
+  double lastTime = glfwGetTime();
+  int numFrames = 0;
+
   // Main loop
   while (!glfwWindowShouldClose( window )){
+    double currentTime = glfwGetTime();
+    numFrames++;
+    if ( currentTime - lastTime >= 1.0){
+      std::cout << 1000.0 / double( numFrames ) << " ms/frame" << std::endl;
+      numFrames = 0;
+      lastTime += 1.0;
+    }
+
     float ratio;
     int width, height;
 
@@ -77,7 +89,7 @@ int main(int argc, char **argv){
     glMatrixMode( GL_MODELVIEW );
     
     glLoadIdentity();
-    glRotatef( (float)glfwGetTime() * 50.f, 0.f, 0.f, 1.f );
+    glRotatef( (float)currentTime * 50.f, 0.f, 0.f, 1.f );
     
     glBegin( GL_TRIANGLES );
 
