@@ -26,3 +26,9 @@
 *.exe
 *.out
 *.app
+
+
+ext/include
+ext/lib
+ext/glfw-build
+ext/glew-build

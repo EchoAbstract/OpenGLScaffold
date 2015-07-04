@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+ROOT=`pwd`
+E=./ext
+
+
+if [[ $1 == "clean" ]];
+then
+    rm -rf $E/glfw-build
+    rm -rf $E/include
+    rm -rf $E/lib
+
+    cd $E/glew
+    make clean
+
+    exit
+fi
+
+echo "Building GLFW"
+cd $ROOT
+cd ext/
+mkdir glfw-build
+cd glfw-build
+cmake ../glfw -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=$ROOT/$E
+make
+make install
+
+echo "Building GLEW"
+cd $ROOT
+cd ext/glew/auto
+make
+cd ..
+GLEW_DEST=$ROOT/$E make
+GLEW_DEST=$ROOT/$E make install
+git reset --hard
+git clean -f
+
+echo "Installing GLM"
+cd $ROOT
+cd ext/
+ln -s $ROOT/$E/glm/glm $ROOT/$E/include/glm
