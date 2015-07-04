@@ -25,6 +25,12 @@ int main(int argc, char **argv){
     exit( EXIT_FAILURE );
 
 
+  // TODO(brian): Move these somewhere better...
+  glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 3 );
+  glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 2 );
+  glfwWindowHint( GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE );
+  glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
+  
   // Create our rendering window
   window = glfwCreateWindow( 640, 480, "Sample OpenGL", NULL, NULL );
   if (!window) {
@@ -32,13 +38,23 @@ int main(int argc, char **argv){
     exit( EXIT_FAILURE );
   }
 
-
+  // Finish setting up GLFW
   glfwMakeContextCurrent( window ); // Set OpenGL rendering context
   glfwSwapInterval( 1 );            // Set swap interval to 1 to avoid tearing
 
   // Handle keypresses
   glfwSetKeyCallback( window, KeyCallback );
 
+
+  // Set up GLEW
+  glewExperimental = GL_TRUE;
+  glewInit();
+
+  const GLubyte *renderer = glGetString( GL_RENDERER );
+  const GLubyte *version  = glGetString( GL_VERSION );
+
+  std::cout << "Renderer: " << renderer << std::endl;
+  std::cout << "OpenGL version: " << version << std::endl;
 
   // Main loop
   while (!glfwWindowShouldClose( window )){
