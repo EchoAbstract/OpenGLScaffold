@@ -4,32 +4,61 @@
 
 #include <iostream>
 
+
+bool cursorDisabled = false;
+
 void ErrorCallback(int error, const char *description){
   std::cerr << description << std::endl;
 }
 
+static void CursorPosCallback( GLFWwindow *window, double xpos, double ypos ){}
+
+static void ScrollCallback( GLFWwindow *window, double xoffset, double yoffset ){}
+
+static void MouseButtonCallback( GLFWwindow *window, int button, int action, int mods){
+  if (action == GLFW_PRESS && cursorDisabled == false){
+      glfwSetInputMode( window, GLFW_CURSOR, GLFW_CURSOR_DISABLED );
+      cursorDisabled = true;
+  }
+}
+
 static void KeyCallback( GLFWwindow *window, int key, int scancode, int action, int mods){
-  if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-    glfwSetWindowShouldClose( window, GL_TRUE );
+  if (action == GLFW_PRESS || action == GLFW_REPEAT){
+    switch (key) {
+    case GLFW_KEY_ESCAPE:
+      glfwSetInputMode( window, GLFW_CURSOR, GLFW_CURSOR_NORMAL );
+      cursorDisabled = false;
+      break;
+    case GLFW_KEY_Q:
+      glfwSetWindowShouldClose( window, GL_TRUE );
+      break;
+    default:
+      std::cout << "Unhandled key!" << std::endl;
+      break;
+    }
+  }
 }
 
 int main(int argc, char **argv){
 
   GLFWwindow *window;
   
-  // Set up error handling
-  glfwSetErrorCallback( ErrorCallback );
+  glfwSetErrorCallback( ErrorCallback ); // Error callback
+
 
   // Initialize GLFW
   if (!glfwInit())
     exit( EXIT_FAILURE );
 
 
-  // TODO(brian): Move these somewhere better...
+  // Change this to #if 1 in order to use modern OpenGL
+#if 0
+  // TODO(brian): update the rest of the code for modern times
   glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 3 );
   glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 2 );
   glfwWindowHint( GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE );
   glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
+#endif  
   
   // Create our rendering window
   window = glfwCreateWindow( 640, 480, "Sample OpenGL", NULL, NULL );
@@ -42,8 +71,11 @@ int main(int argc, char **argv){
   glfwMakeContextCurrent( window ); // Set OpenGL rendering context
   glfwSwapInterval( 1 );            // Set swap interval to 1 to avoid tearing
 
-  // Handle keypresses
-  glfwSetKeyCallback( window, KeyCallback );
+  // Input callbacks
+  glfwSetKeyCallback( window, KeyCallback );                 // Keypress
+  glfwSetCursorPosCallback( window, CursorPosCallback );     // Mouse cursor
+  glfwSetScrollCallback( window, ScrollCallback );           // Mouse scrollwheel
+  glfwSetMouseButtonCallback( window, MouseButtonCallback ); // Mouse press
 
 
   // Set up GLEW
@@ -60,14 +92,19 @@ int main(int argc, char **argv){
   double lastTime = glfwGetTime();
   int numFrames = 0;
 
+  std::string rootTitle = "OpenGL Window -- ";
+  std::string title;
+
   // Main loop
   while (!glfwWindowShouldClose( window )){
     double currentTime = glfwGetTime();
     numFrames++;
     if ( currentTime - lastTime >= 1.0){
       std::cout << 1000.0 / double( numFrames ) << " ms/frame" << std::endl;
+      title = rootTitle + std::to_string(numFrames) + " fps";
       numFrames = 0;
       lastTime += 1.0;
+      glfwSetWindowTitle( window, title.c_str() );
     }
 
     float ratio;
