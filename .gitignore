@@ -32,3 +32,6 @@ ext/include
 ext/lib
 ext/glfw-build
 ext/glew-build
+
+
+src/opengl-test
